@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
+   <MenuBar VBox.vgrow="NEVER">
+      <Menu mnemonicParsing="false" text="Программа">
+         <MenuItem mnemonicParsing="false" onAction="#quit" text="Выйти" />
+      </Menu>
+   </MenuBar>
+   <AnchorPane VBox.vgrow="ALWAYS">
+      <ListView fx:id="clientStorage" layoutX="368.0" layoutY="6.0" prefHeight="416.0" prefWidth="222.0" />
+      <ListView fx:id="ServerStorage" layoutX="10.0" layoutY="6.0" prefHeight="416.0" prefWidth="222.0" />
+      <Button layoutX="237.0" layoutY="220.0" onAction="#synchronize" prefHeight="25.0" prefWidth="125.0" text="Синхронизировать" />
+   </AnchorPane>
+   <TextField fx:id="test"/>
+</VBox>
