@@ -10,6 +10,7 @@ public class Client extends Application {
     public void start(Stage stage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("/client.fxml"));
         stage.setTitle("Cloud storage");
+        stage.setResizable(false);
         stage.setScene(new Scene(root));
         stage.show();
     }
