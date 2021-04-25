@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+//TODO добавить кнопки по функционалу (удаление файла из директории, удаление файла с сервера)
 public class Controller implements Initializable {
 
     public ListView<String> clientStorage;
@@ -28,6 +29,6 @@ public class Controller implements Initializable {
     public void synchronize(ActionEvent actionEvent) throws IOException {
         network.synchronize(test.getText());
         test.clear();
-        //#TODO реализовать синхронизацию
+        //TODO реализовать синхронизацию
     }
 }

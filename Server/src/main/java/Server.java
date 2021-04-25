@@ -8,6 +8,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
+//TODO дописать метод initChannel (определиться с pipeline'ами)
 public class Server {
 
     private static final int PORT = 8189;

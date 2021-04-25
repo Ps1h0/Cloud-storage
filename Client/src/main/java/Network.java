@@ -7,11 +7,10 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.stream.Stream;
 
+//TODO дописать метод initChannel (определиться с pipeline'ами)
 public class Network {
     private final Path PATH_TO_STORAGE = Paths.get("../ClientStorage");
     private static final String ADDRESS = "localhost";
