@@ -2,10 +2,8 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 
 import java.io.IOException;
 import java.net.URL;
@@ -18,13 +16,13 @@ import java.util.stream.Collectors;
 
 public class Controller implements Initializable {
 
-    private final Path DEFAULT_PATH_TO_STORAGE = Paths.get("./Client/src/Client Storage");
+    private final Path DEFAULT_PATH_TO_STORAGE = Paths.get("./Client/Client Storage");
     public TableView<FileInfo> filesTable;
-    public TextField test;
-    public TableView serverStorage; //TODO привязать к серверному хранилищу
+    public TableView<FileInfo> serverStorage; //TODO привязать к серверному хранилищу
     public ComboBox<String> disksBox;
     public TextField pathField;
     public Network network;
+    public TextField testField;
 
     //Инициализация графического интерфейса
     @Override
@@ -52,14 +50,15 @@ public class Controller implements Initializable {
 
         //Сортировка по типу (сначала директории, затем файлы)
         filesTable.getSortOrder().add(fileTypeColumn);
-        fileSizeColumn.setCellFactory(column -> new TableCell<FileInfo, Long>(){
+
+        fileSizeColumn.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(Long item, boolean empty) {
                 super.updateItem(item, empty);
-                if (item == null || empty){
+                if (item == null || empty) {
                     setText(null);
                     setStyle("");
-                }else{
+                } else {
                     String text = String.format("%,d Б", item);
                     if (item == -1L) text = "[DIR]";
                     setText(text);
@@ -75,14 +74,11 @@ public class Controller implements Initializable {
         disksBox.getSelectionModel().select(0);
 
         //Переход на уровень вниз в древе при нажатии 2 лкм
-        filesTable.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                if (mouseEvent.getClickCount() == 2){
-                    Path path = Paths.get(getCurrentPath()).resolve(getSelectedFilename());
-                    if (Files.isDirectory(path)){
-                        updateTable(path);
-                    }
+        filesTable.setOnMouseClicked(mouseEvent -> {
+            if (mouseEvent.getClickCount() == 2){
+                Path path = Paths.get(getCurrentPath()).resolve(getSelectedFilename());
+                if (Files.isDirectory(path)){
+                    updateTable(path);
                 }
             }
         });
@@ -111,12 +107,12 @@ public class Controller implements Initializable {
     }
 
     //TODO не работает
-    public void quit(ActionEvent actionEvent) {
+    public void quit() {
         Platform.exit();
     }
 
     //Операция удаления файла/директории из папки на клиенте
-    public void deleteFile(ActionEvent actionEvent) {
+    public void deleteFile() {
         if(filesTable.getSelectionModel().getSelectedItem() == null){
             Alert alert = new Alert(Alert.AlertType.ERROR, "Файл не выбран", ButtonType.OK);
             alert.showAndWait();
@@ -133,7 +129,7 @@ public class Controller implements Initializable {
     }
 
     //Переход на один уровень вверх в древе
-    public void pathUp(ActionEvent actionEvent) {
+    public void pathUp() {
         Path upperPath = Paths.get(getCurrentPath()).getParent();
         if(upperPath != null){
             updateTable(upperPath);
@@ -144,6 +140,13 @@ public class Controller implements Initializable {
     public void selectDisk(ActionEvent actionEvent) {
         ComboBox<String> element = (ComboBox<String>) actionEvent.getSource();
         updateTable(Paths.get(element.getSelectionModel().getSelectedItem()));
+    }
+
+    public void sendToServer(ActionEvent actionEvent) throws IOException {
+        Path path = Paths.get("./Client/Client Storage/" + getSelectedFilename());
+        FileInfo fileInfo = new FileInfo(path);
+        Converter converter = new Converter();
+        network.sendMessage(converter.toJSON(fileInfo));
     }
 
     public String getSelectedFilename(){

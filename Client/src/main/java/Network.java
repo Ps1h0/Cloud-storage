@@ -5,7 +5,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-
+import io.netty.handler.codec.serialization.ClassResolvers;
+import io.netty.handler.codec.serialization.ObjectDecoder;
+import io.netty.handler.codec.serialization.ObjectEncoder;
 import java.io.IOException;
 
 //TODO дописать метод initChannel (определиться с pipeline'ами)
@@ -25,7 +27,10 @@ public class Network {
                             @Override
                             protected void initChannel(SocketChannel socketChannel) throws Exception {
                                 channel = socketChannel;
-//                                socketChannel.pipeline().addLast();
+                                socketChannel.pipeline().addLast(
+                                        new ObjectDecoder(1024 * 1024 * 100, ClassResolvers.cacheDisabled(null)),
+                                        new ObjectEncoder()
+                                );
                             }
                         });
                 ChannelFuture future = bootstrap.connect(ADDRESS, PORT).sync();
@@ -39,6 +44,10 @@ public class Network {
     }
 
     public void synchronize(String str) throws IOException {
+        channel.writeAndFlush(str);
+    }
+
+    public void sendMessage(String str){
         channel.writeAndFlush(str);
     }
 }
