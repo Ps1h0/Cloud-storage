@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-//Класс для заполнения таблицы списка файлов на клиенте
+//Класс с информацией о файле
 public class FileInfo extends AbstractMessage {
     //Перечисление типов файлов (файл или директория)
     public enum FileType{
@@ -64,16 +64,6 @@ public class FileInfo extends AbstractMessage {
 
     public void setSize(long size) {
         this.size = size;
-    }
-
-    @Override
-    public String toString() {
-        return "FileInfo{" +
-                "filename='" + filename + '\'' +
-                ", type=" + type +
-                ", size=" + size +
-                ", fileContent=" + fileContent +
-                '}';
     }
 
     public FileInfo() {

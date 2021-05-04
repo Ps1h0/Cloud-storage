@@ -2,6 +2,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import java.util.List;
 
+//TODO реализовать передачу всех сообщений с помощью JSON/удалить
 public class JSONDecoder extends MessageToMessageDecoder<String> {
 
 

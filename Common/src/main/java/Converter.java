@@ -3,6 +3,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 
 //Класс для преобразования объекта в JSON, а JSON в в объект
+//TODO реализовать передачу через JSON/удалить
 public class Converter {
 
     ObjectMapper mapper = new ObjectMapper();

@@ -20,7 +20,8 @@ public class Network {
     private static final int PORT = 8189;
     private SocketChannel channel;
 
-    public Network(){
+
+    public Network(Controller controller){
         new Thread(() ->{
             EventLoopGroup workerGroup = new NioEventLoopGroup();
             try{
@@ -39,7 +40,7 @@ public class Network {
                                         new StringEncoder(),
 //                                        new JSONDecoder(),
 //                                        new JSONEncoder(),
-                                        new InHandler(),
+                                        new InHandler(controller),
                                         new OutHandler()
                                 );
                             }
@@ -55,7 +56,7 @@ public class Network {
     }
 
     //TODO реализовать синхронизацию файлов с клиентом и сервером
-    public void synchronize(String str) throws IOException {
+    public void synchronize(String str) {
         channel.writeAndFlush(str);
     }
 

@@ -1,21 +1,7 @@
-import java.io.File;
-import java.util.Collection;
 import java.util.List;
 
+//Класс ответ на запрос списка файлов. Хранит в себе список с информацией о файлах
 public class FilesListResponse extends AbstractMessage{
-
-//    private List<File> files;
-//
-//    FilesListResponse(){}
-//
-//    public FilesListResponse(List<File> files) {
-//        this.files = files;
-//    }
-//
-//    public List<File> getFiles(){
-//        return files;
-//    }
-
 
     public FilesListResponse() {
     }
