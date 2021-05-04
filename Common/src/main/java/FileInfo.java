@@ -3,11 +3,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-
 
 //Класс для заполнения таблицы списка файлов на клиенте
-public class FileInfo {
+public class FileInfo extends AbstractMessage {
     //Перечисление типов файлов (файл или директория)
     public enum FileType{
         FILE("File"), DIRECTORY("Dir");
@@ -33,7 +31,7 @@ public class FileInfo {
     private long size;
 
     @JsonProperty("fileContent")
-    private String fileContent;
+    private byte[] fileContent;
 
 
     public String getFilename() {
@@ -44,20 +42,11 @@ public class FileInfo {
         this.filename = filename;
     }
 
-//    public String getFileContent() {
-//        String s = "";
-//        for (int i = 0; i < fileContent.length; i++){
-//            s += (char) fileContent[i];
-//        }
-//        return s;
-//    }
-
-
-    public String getFileContent() {
-        return new String(fileContent);
+    public byte[] getFileContent() {
+        return fileContent;
     }
 
-    public void setFileContent(String fileContent) {
+    public void setFileContent(byte[] fileContent) {
         this.fileContent = fileContent;
     }
 
@@ -97,7 +86,7 @@ public class FileInfo {
             this.type = Files.isDirectory(path) ? FileType.DIRECTORY : FileType.FILE;
             if (this.type == FileType.DIRECTORY) {
                 this.size = -1L;
-            } else this.fileContent = new String(Files.readAllBytes(path));
+            } else this.fileContent = Files.readAllBytes(path);
         } catch (IOException e) {
             throw new RuntimeException("Некорректный файл");
         }

@@ -18,40 +18,65 @@ public class Controller implements Initializable {
 
     private final Path DEFAULT_PATH_TO_STORAGE = Paths.get("./Client/Client Storage");
     public TableView<FileInfo> filesTable;
-    public TableView<FileInfo> serverStorage; //TODO привязать к серверному хранилищу
+    public TableView<FileInfo> serverTable;
     public ComboBox<String> disksBox;
     public TextField pathField;
     public Network network;
-    public TextField testField;
+
+
+    public TableView<FileInfo> getServerTable() {
+        return serverTable;
+    }
+
+    public void setServerTable(TableView<FileInfo> serverTable) {
+        this.serverTable = serverTable;
+    }
 
     //Инициализация графического интерфейса
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
         //Получение соединения
         network = new Network();
 
         //Заполнение колонки "тип файла" в таблице
-        TableColumn<FileInfo, String> fileTypeColumn = new TableColumn<>();
-        fileTypeColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getType().getName()));
-        fileTypeColumn.setPrefWidth(24);
+        TableColumn<FileInfo, String> clientFileTypeColumn = new TableColumn<>();
+        clientFileTypeColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getType().getName()));
+        clientFileTypeColumn.setPrefWidth(24);
+
+        TableColumn<FileInfo, String> serverFileTypeColumn = new TableColumn<>();
+        serverFileTypeColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getType().getName()));
+        serverFileTypeColumn.setPrefWidth(24);
+
 
         //Заполнение колонки "имя" в таблице
-        TableColumn<FileInfo, String> fileNameColumn = new TableColumn<>("Имя");
-        fileNameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getFilename()));
-        fileNameColumn.setPrefWidth(150);
+        TableColumn<FileInfo, String> clientFileNameColumn = new TableColumn<>("Имя");
+        clientFileNameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getFilename()));
+        clientFileNameColumn.setPrefWidth(150);
+
+        TableColumn<FileInfo, String> serverFileNameColumn = new TableColumn<>("Имя");
+        serverFileNameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getFilename()));
+        serverFileNameColumn.setPrefWidth(150);
+
 
         //Заполнение колонки "размер" в таблице
-        TableColumn<FileInfo, Long> fileSizeColumn = new TableColumn<>("Размер");
-        fileSizeColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getSize()));
-        fileSizeColumn.setPrefWidth(50);
+        TableColumn<FileInfo, Long> clientFileSizeColumn = new TableColumn<>("Размер");
+        clientFileSizeColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getSize()));
+        clientFileSizeColumn.setPrefWidth(50);
+
+        TableColumn<FileInfo, Long> serverFileSizeColumn = new TableColumn<>("Размер");
+        serverFileSizeColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getSize()));
+        serverFileSizeColumn.setPrefWidth(50);
 
         //Добавление элементов в таблицу
-        filesTable.getColumns().addAll(fileTypeColumn, fileNameColumn, fileSizeColumn);
+        filesTable.getColumns().addAll(clientFileTypeColumn, clientFileNameColumn, clientFileSizeColumn);
+        serverTable.getColumns().addAll(serverFileTypeColumn, serverFileNameColumn, serverFileSizeColumn);
 
         //Сортировка по типу (сначала директории, затем файлы)
-        filesTable.getSortOrder().add(fileTypeColumn);
+        filesTable.getSortOrder().add(clientFileTypeColumn);
+        filesTable.getSortOrder().add(serverFileTypeColumn);
 
-        fileSizeColumn.setCellFactory(column -> new TableCell<>() {
+        clientFileSizeColumn.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(Long item, boolean empty) {
                 super.updateItem(item, empty);
@@ -95,14 +120,25 @@ public class Controller implements Initializable {
             filesTable.getItems().clear();
             filesTable.getItems().addAll(Files.list(path).map(FileInfo::new).collect(Collectors.toList()));
             filesTable.sort();
+
         } catch (IOException e) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Не удалось обновить список файлов", ButtonType.OK);
             alert.showAndWait();
         }
     }
 
+    public void zapolnitTable(FilesListResponse filesListResponse){
+        serverTable.getItems().clear();
+        serverTable.getItems().addAll(filesListResponse.getFiles());
+        serverTable.sort();
+    }
+
     //TODO реализовать синхронизацию
-    public void synchronize(ActionEvent actionEvent) throws IOException {
+    public void synchronize() throws IOException {
+//        FilesListResponse filesListResponse = new FilesListResponse();
+//        List<FileInfo> list = new ArrayList<>(filesTable.getItems());
+        //network.synchronize();
+        network.getServerFiles();
 
     }
 
@@ -142,11 +178,14 @@ public class Controller implements Initializable {
         updateTable(Paths.get(element.getSelectionModel().getSelectedItem()));
     }
 
-    public void sendToServer(ActionEvent actionEvent) throws IOException {
-        Path path = Paths.get("./Client/Client Storage/" + getSelectedFilename());
-        FileInfo fileInfo = new FileInfo(path);
-        Converter converter = new Converter();
-        network.sendMessage(converter.toJSON(fileInfo));
+    public void sendToServer() {
+        if(filesTable.getSelectionModel().getSelectedItem() == null){
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Файл не выбран", ButtonType.OK);
+            alert.showAndWait();
+        }else{
+            Path path = Paths.get(getCurrentPath() + "/" + getSelectedFilename());
+            network.sendFile(path);
+        }
     }
 
     public String getSelectedFilename(){
@@ -156,4 +195,5 @@ public class Controller implements Initializable {
     public String getCurrentPath(){
         return pathField.getText();
     }
+
 }

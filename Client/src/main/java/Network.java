@@ -8,7 +8,11 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
+import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
+
 import java.io.IOException;
+import java.nio.file.Path;
 
 //TODO дописать метод initChannel (определиться с pipeline'ами)
 public class Network {
@@ -25,11 +29,18 @@ public class Network {
                         .channel(NioSocketChannel.class)
                         .handler(new ChannelInitializer<SocketChannel>() {
                             @Override
-                            protected void initChannel(SocketChannel socketChannel) throws Exception {
+                            protected void initChannel(SocketChannel socketChannel) {
                                 channel = socketChannel;
                                 socketChannel.pipeline().addLast(
-                                        new ObjectDecoder(1024 * 1024 * 100, ClassResolvers.cacheDisabled(null)),
-                                        new ObjectEncoder()
+                                        //На крайний случай
+                                        new ObjectDecoder(1024 * 1024, ClassResolvers.cacheDisabled(null)),
+                                        new ObjectEncoder(),
+                                        new StringDecoder(),
+                                        new StringEncoder(),
+//                                        new JSONDecoder(),
+//                                        new JSONEncoder(),
+                                        new InHandler(),
+                                        new OutHandler()
                                 );
                             }
                         });
@@ -43,11 +54,24 @@ public class Network {
         }).start();
     }
 
+    //TODO реализовать синхронизацию файлов с клиентом и сервером
     public void synchronize(String str) throws IOException {
         channel.writeAndFlush(str);
     }
 
-    public void sendMessage(String str){
-        channel.writeAndFlush(str);
+
+    public void getServerFiles(){
+        channel.writeAndFlush(new FilesListRequest());
     }
+
+    public void sendFile(Path path){
+        channel.writeAndFlush(path);
+    }
+
+    public void getFileFromServer(Path path){
+        FilesListRequest filesList = new FilesListRequest();
+        channel.writeAndFlush(filesList);
+    }
+
+
 }

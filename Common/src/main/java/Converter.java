@@ -2,18 +2,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
-//Класс для преобразования файла в JSON, а JSON в файл
+//Класс для преобразования объекта в JSON, а JSON в в объект
 public class Converter {
 
-    //На вход объект FileInfo с данными о файле (имя и содержимое). На выходе строка JSON
-    public String toJSON(FileInfo fileInfo) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(fileInfo);
+    ObjectMapper mapper = new ObjectMapper();
+
+    //На вход объект, на выходе строка JSON
+    public String toJSON(Object o) throws IOException {
+        return mapper.writeValueAsString(o);
     }
 
     //На вход строка JSON, на выходе объект FileInfo
     public FileInfo toJavaObject(String info) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
         return mapper.readValue(info, FileInfo.class);
     }
 }
