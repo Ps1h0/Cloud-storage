@@ -3,16 +3,37 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<VBox prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
    <MenuBar VBox.vgrow="NEVER">
       <Menu mnemonicParsing="false" text="Программа">
          <MenuItem mnemonicParsing="false" onAction="#quit" text="Выйти" />
       </Menu>
    </MenuBar>
    <AnchorPane VBox.vgrow="ALWAYS">
-      <ListView fx:id="clientStorage" layoutX="368.0" layoutY="6.0" prefHeight="416.0" prefWidth="222.0" />
-      <ListView fx:id="ServerStorage" layoutX="10.0" layoutY="6.0" prefHeight="416.0" prefWidth="222.0" />
-      <Button layoutX="237.0" layoutY="220.0" onAction="#synchronize" prefHeight="25.0" prefWidth="125.0" text="Синхронизировать" />
+      <Label layoutX="110.0" layoutY="10.0" text="Удаленное хранилище" />
+      <ComboBox fx:id="disksBox" layoutX="470" layoutY="6.0" onAction="#selectDisk" prefHeight="25.0" prefWidth="60.0" />
+      <Button focusTraversable="false" layoutX="760" layoutY="6.0" onAction="#pathUp">
+      <graphic>
+         <ImageView>
+             <Image url="up.png" requestedHeight="15" requestedWidth="15"/>
+         </ImageView>
+      </graphic>
+      </Button>
+      <TextField fx:id="pathField" editable="false" layoutX="540.0" layoutY="6.0" prefHeight="25.0" prefWidth="220.0" />
+
+      <TableView fx:id="filesTable" layoutX="470.0" layoutY="40.0" prefHeight="400.0" prefWidth="320.0" />
+      <TableView fx:id="serverTable" layoutX="10.0" layoutY="40.0" prefHeight="400.0" prefWidth="320.0" />
+
+      <Button focusTraversable="false" layoutX="332.0" layoutY="250.0" onAction="#synchronize" prefHeight="25.0" prefWidth="135.0" text="Синхронизировать" />
+
+      <Button focusTraversable="false" layoutX="480.0" layoutY="445.0" onAction="#sendToServer" prefHeight="25.0" prefWidth="135.0" text="Отправить на сервер"/>
+      <Button focusTraversable="false" layoutX="645.0" layoutY="445.0" onAction="#deleteFileFromClient" prefHeight="25.0" prefWidth="135.0" text="Удалить файл" />
+
+      <Button focusTraversable="false" layoutX="20.0" layoutY="445.0" onAction="#getFileFromServer" prefHeight="25.0" prefWidth="135.0" text="Отправить на клиент"/>
+      <Button focusTraversable="false" layoutX="185.0" layoutY="445.0" onAction="#deleteFileFromServer" prefHeight="25.0" prefWidth="135.0" text="Удалить файл" />
+
    </AnchorPane>
-   <TextField fx:id="test"/>
+
 </VBox>
