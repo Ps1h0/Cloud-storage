@@ -1,21 +1,20 @@
-import java.nio.file.Path;
 
 public class DeleteRequest extends AbstractMessage{
 
-    private Path delPath;
+    private String delPath;
 
     public DeleteRequest() {
     }
 
-    public DeleteRequest(Path delPath) {
+    public DeleteRequest(String delPath) {
         this.delPath = delPath;
     }
 
-    public Path getDelPath() {
+    public String getDelPath() {
         return delPath;
     }
 
-    public void setDelPath(Path delPath) {
+    public void setDelPath(String delPath) {
         this.delPath = delPath;
     }
 }

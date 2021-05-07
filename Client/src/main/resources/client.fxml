@@ -31,7 +31,7 @@
       <Button focusTraversable="false" layoutX="480.0" layoutY="445.0" onAction="#sendToServer" prefHeight="25.0" prefWidth="135.0" text="Отправить на сервер"/>
       <Button focusTraversable="false" layoutX="645.0" layoutY="445.0" onAction="#deleteFileFromClient" prefHeight="25.0" prefWidth="135.0" text="Удалить файл" />
 
-      <Button focusTraversable="false" layoutX="20.0" layoutY="445.0" onAction="#sendToClient" prefHeight="25.0" prefWidth="135.0" text="Отправить на клиент"/>
+      <Button focusTraversable="false" layoutX="20.0" layoutY="445.0" onAction="#getFileFromServer" prefHeight="25.0" prefWidth="135.0" text="Отправить на клиент"/>
       <Button focusTraversable="false" layoutX="185.0" layoutY="445.0" onAction="#deleteFileFromServer" prefHeight="25.0" prefWidth="135.0" text="Удалить файл" />
 
    </AnchorPane>

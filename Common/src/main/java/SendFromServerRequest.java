@@ -2,20 +2,20 @@ import java.nio.file.Path;
 
 public class SendFromServerRequest extends AbstractMessage{
 
-    public Path path;
+    public String path;
 
     public SendFromServerRequest() {
     }
 
-    public SendFromServerRequest(Path path) {
+    public SendFromServerRequest(String path) {
         this.path = path;
     }
 
-    public Path getPath() {
+    public String getPath() {
         return path;
     }
 
-    public void setPath(Path path) {
+    public void setPath(String path) {
         this.path = path;
     }
 }

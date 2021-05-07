@@ -36,13 +36,15 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
             ctx.writeAndFlush(synchronizerResponse);
         }
         if (msg instanceof DeleteRequest){
-            System.out.println("EE");
             DeleteRequest deleteRequest = (DeleteRequest) msg;
-            Files.delete(deleteRequest.getDelPath());
+            Path path = Path.of("./Server/Server storage/" + deleteRequest.getDelPath());
+            Files.delete(path);
+            ctx.writeAndFlush(serverFilesTable());
         }
         if (msg instanceof SendFromServerRequest){
-            System.out.println("EEE");
-            FileInfo fileInfo = new FileInfo((Path) msg);
+            SendFromServerRequest sendFromServerRequest = (SendFromServerRequest) msg;
+            Path path = Path.of("./Server/Server storage/" + sendFromServerRequest.getPath());
+            FileInfo fileInfo = new FileInfo(path);
             ctx.writeAndFlush(fileInfo);
         }
     }

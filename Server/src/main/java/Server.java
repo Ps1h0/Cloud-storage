@@ -8,8 +8,6 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 
 public class Server {
 
@@ -33,10 +31,6 @@ public class Server {
                             socketChannel.pipeline().addLast(
                                 new ObjectDecoder(1024 * 1024 * 1024, ClassResolvers.cacheDisabled(null)),
                                 new ObjectEncoder(),
-//                                new StringDecoder(),
-//                                new StringEncoder(),
-//                                new JSONDecoder(),
-//                                new JSONEncoder(),
                                 new ServerHandler()
                             );
                         }

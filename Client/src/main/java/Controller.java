@@ -94,7 +94,7 @@ public class Controller implements Initializable {
     }
 
     //Обновление списка файлов и директорий на клиенте после каких-либо манипуляций с файлами
-    private void updateTable(Path path){
+    public void updateTable(Path path){
         try {
             pathField.setText(path.normalize().toAbsolutePath().toString());
             filesTable.getItems().clear();
@@ -182,13 +182,13 @@ public class Controller implements Initializable {
     }
 
     //TODO реализовать передачу с сервера на клиент
-    public void sendToClient() {
+    public void getFileFromServer() {
         if (serverTable.getSelectionModel().getSelectedItem() == null){
             Alert alert = new Alert(Alert.AlertType.ERROR, "Файл не выбран", ButtonType.OK);
             alert.showAndWait();
         }else{
             Path sendPath = Paths.get(getSelectedFilename(serverTable));
-            network.sendFromServer(sendPath);
+            network.getFromServer(sendPath);
         }
     }
 
@@ -199,7 +199,6 @@ public class Controller implements Initializable {
             alert.showAndWait();
         }else{
             Path delPath = Paths.get(getSelectedFilename(serverTable));
-            System.out.println(delPath);
             network.deleteFromServer(delPath);
         }
     }

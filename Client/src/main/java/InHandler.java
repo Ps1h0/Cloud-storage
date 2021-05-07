@@ -35,6 +35,7 @@ public class InHandler extends ChannelInboundHandlerAdapter {
                 FileOutputStream fo = new FileOutputStream(file);
                 fo.write(fileInfo.getFileContent());
                 fo.close();
+                controller.updateTable(Path.of("./Client/Client Storage/"));
             }
         }
         if (msg instanceof SynchronizerResponse){
@@ -61,5 +62,4 @@ public class InHandler extends ChannelInboundHandlerAdapter {
             System.out.println("Передача папок пока не реализована");
         }
     }
-
 }

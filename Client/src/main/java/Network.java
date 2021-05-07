@@ -8,8 +8,6 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 
 import java.nio.file.Path;
 
@@ -33,12 +31,7 @@ public class Network {
                                 socketChannel.pipeline().addLast(
                                         new ObjectDecoder(1024 * 1024 * 1024, ClassResolvers.cacheDisabled(null)),
                                         new ObjectEncoder(),
-//                                        new StringDecoder(),
-//                                        new StringEncoder(),
-//                                        new JSONDecoder(),
-//                                        new JSONEncoder(),
-                                        new InHandler(controller),
-                                        new OutHandler()
+                                        new InHandler(controller)
                                 );
                             }
                         });
@@ -56,20 +49,25 @@ public class Network {
         channel.writeAndFlush(synchronizerRequest);
     }
 
-    public void closeConnection(){
-        channel.close();
-    }
-
     public void sendFile(Path path){
-        channel.writeAndFlush(path);
+        FileInfo fileInfo = new FileInfo(path);
+        channel.writeAndFlush(fileInfo);
     }
 
     public void deleteFromServer(Path path){
-        channel.writeAndFlush(new DeleteRequest(path));
+        DeleteRequest deleteRequest = new DeleteRequest(path.toString());
+        channel.writeAndFlush(deleteRequest);
+        //channel.writeAndFlush(new DeleteRequest(path));
     }
 
 
-    public void sendFromServer(Path sendPath) {
-        channel.writeAndFlush(new SendFromServerRequest(sendPath));
+    public void getFromServer(Path sendPath) {
+        SendFromServerRequest sendFromServerRequest = new SendFromServerRequest(sendPath.toString());
+        channel.writeAndFlush(sendFromServerRequest);
+        //channel.writeAndFlush(new SendFromServerRequest(sendPath));
+    }
+
+    public void closeConnection(){
+        channel.close();
     }
 }
