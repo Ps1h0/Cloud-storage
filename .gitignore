@@ -3,6 +3,8 @@
 /Server/target/
 /Common/target
 
-.idea/
+/.idea/
 
 *.iml
+
+
