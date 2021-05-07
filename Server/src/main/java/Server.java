@@ -11,7 +11,6 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
-//TODO дописать метод initChannel (определиться с pipeline'ами)
 public class Server {
 
     private static final int PORT = 8189;
@@ -32,15 +31,13 @@ public class Server {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) {
                             socketChannel.pipeline().addLast(
-                                    //На крайний случай
-                                    new ObjectDecoder(1024 * 1024, ClassResolvers.cacheDisabled(null)),
-                                    new ObjectEncoder(),
-                                    new StringDecoder(),
-                                    new StringEncoder(),
-//                                    new JSONDecoder(),
-//                                    new JSONEncoder(),
-                                    new HandlerInboundChannel(),
-                                    new HandlerOutboundChannel()
+                                new ObjectDecoder(1024 * 1024 * 1024, ClassResolvers.cacheDisabled(null)),
+                                new ObjectEncoder(),
+//                                new StringDecoder(),
+//                                new StringEncoder(),
+//                                new JSONDecoder(),
+//                                new JSONEncoder(),
+                                new ServerHandler()
                             );
                         }
                     });

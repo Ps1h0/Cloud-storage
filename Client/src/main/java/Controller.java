@@ -11,6 +11,8 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -43,7 +45,7 @@ public class Controller implements Initializable {
         //Переход на уровень вниз в древе при нажатии 2 лкм
         filesTable.setOnMouseClicked(mouseEvent -> {
             if (mouseEvent.getClickCount() == 2){
-                Path path = Paths.get(getCurrentPath()).resolve(getSelectedFilename());
+                Path path = Paths.get(getCurrentPath()).resolve(getSelectedFilename(filesTable));
                 if (Files.isDirectory(path)){
                     updateTable(path);
                 }
@@ -54,7 +56,7 @@ public class Controller implements Initializable {
     }
 
     //Создание таблиц в окне
-    public void createTable(TableView<FileInfo> tableView){
+    private void createTable(TableView<FileInfo> tableView){
         //Создание и заполнение колонки "тип файла" в таблице
         TableColumn<FileInfo, String> fileTypeColumn = new TableColumn<>();
         fileTypeColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getType().getName()));
@@ -92,7 +94,7 @@ public class Controller implements Initializable {
     }
 
     //Обновление списка файлов и директорий на клиенте после каких-либо манипуляций с файлами
-    public void updateTable(Path path){
+    private void updateTable(Path path){
         try {
             pathField.setText(path.normalize().toAbsolutePath().toString());
             filesTable.getItems().clear();
@@ -105,22 +107,27 @@ public class Controller implements Initializable {
     }
 
     //Заполнение таблицы данными о файлах на серверном хранилище
-    public void fillTable(FilesListResponse filesListResponse){
+    public void fillServerTable(FilesListResponse filesListResponse){
         serverTable.getItems().clear();
         serverTable.getItems().addAll(filesListResponse.getFiles());
         serverTable.sort();
     }
 
-    //TODO реализовать синхронизацию
-    public void synchronize() {
-//        FilesListResponse filesListResponse = new FilesListResponse();
-//        List<FileInfo> list = new ArrayList<>(filesTable.getItems());
-        //network.synchronize();
-
+    //Заполнение таблицы данными о файлах на клиенте
+    public void fillClientTable(FilesListResponse filesListResponse){
+        filesTable.getItems().clear();
+        filesTable.getItems().addAll(filesListResponse.getFiles());
+        filesTable.sort();
     }
 
-    //TODO не работает
+    //Синхронизация файлов клиента и сервера
+    public void synchronize() {
+        List<FileInfo> files = new ArrayList<>(filesTable.getItems());
+        network.synchronize(new SynchronizerRequest(files));
+    }
+
     public void quit() {
+        network.closeConnection();
         Platform.exit();
     }
 
@@ -130,7 +137,7 @@ public class Controller implements Initializable {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Файл не выбран", ButtonType.OK);
             alert.showAndWait();
         }else{
-            Path delPath = Paths.get(getCurrentPath(), getSelectedFilename());
+            Path delPath = Paths.get(getCurrentPath(), getSelectedFilename(filesTable));
             try {
                 Files.delete(delPath);
                 updateTable(Paths.get(getCurrentPath()));
@@ -155,21 +162,22 @@ public class Controller implements Initializable {
         updateTable(Paths.get(element.getSelectionModel().getSelectedItem()));
     }
 
+    //Отправить файл на сервер
     public void sendToServer() {
         if(filesTable.getSelectionModel().getSelectedItem() == null){
             Alert alert = new Alert(Alert.AlertType.ERROR, "Файл не выбран", ButtonType.OK);
             alert.showAndWait();
         }else{
-            Path path = Paths.get(getCurrentPath() + "/" + getSelectedFilename());
+            Path path = Paths.get(getCurrentPath() + "/" + getSelectedFilename(filesTable));
             network.sendFile(path);
         }
     }
 
-    public String getSelectedFilename(){
-        return filesTable.getSelectionModel().getSelectedItem().getFilename();
+    private String getSelectedFilename(TableView<FileInfo> tableView){
+        return tableView.getSelectionModel().getSelectedItem().getFilename();
     }
 
-    public String getCurrentPath(){
+    private String getCurrentPath(){
         return pathField.getText();
     }
 
@@ -178,12 +186,21 @@ public class Controller implements Initializable {
         if (serverTable.getSelectionModel().getSelectedItem() == null){
             Alert alert = new Alert(Alert.AlertType.ERROR, "Файл не выбран", ButtonType.OK);
             alert.showAndWait();
-        }/*else{
-
-        }*/
+        }else{
+            Path sendPath = Paths.get(getSelectedFilename(serverTable));
+            network.sendFromServer(sendPath);
+        }
     }
 
     //TODO реализовать удаление файла с сервера
     public void deleteFileFromServer() {
+        if(serverTable.getSelectionModel().getSelectedItem() == null){
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Файл не выбран", ButtonType.OK);
+            alert.showAndWait();
+        }else{
+            Path delPath = Paths.get(getSelectedFilename(serverTable));
+            System.out.println(delPath);
+            network.deleteFromServer(delPath);
+        }
     }
 }

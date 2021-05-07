@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 //Серверный обработчик входящих сообщений
-public class HandlerInboundChannel extends ChannelInboundHandlerAdapter {
+public class ServerHandler extends ChannelInboundHandlerAdapter {
 
     //При подключении отправить клиенту список файлов на серверном хранилище для вывода
     @Override
@@ -23,25 +23,27 @@ public class HandlerInboundChannel extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         System.out.println("Серверный IN " + msg);
 
-//        if (msg instanceof FilesListRequest){
-//
-//        }
-        //Если запрос - информация о файле, то сохранить этот файл на сервере
-        //TODO реализовать передачу папок с файлами
         if (msg instanceof FileInfo){
             FileInfo fileInfo = (FileInfo) msg;
-            Path path = Paths.get("./Server/Server Storage/" + fileInfo.getFilename());
-            if (!(fileInfo.getType() == FileInfo.FileType.DIRECTORY)){
-                Files.createFile(path);
-                File file = new File(path.toString());
-                FileOutputStream fo = new FileOutputStream(file);
-                fo.write(fileInfo.getFileContent());
-                fo.close();
-                System.out.println("файл принят");
-                ctx.writeAndFlush(serverFilesTable());
-            }else{
-                System.out.println("Передача папок пока не реализована");
+            acceptFiles(ctx, fileInfo);
+        }
+        if (msg instanceof SynchronizerRequest){
+            SynchronizerRequest synchronizerRequest = (SynchronizerRequest) msg;
+            for (int i = 0; i < synchronizerRequest.getFiles().size(); i++){
+                acceptFiles(ctx, synchronizerRequest.getFiles().get(i));
             }
+            SynchronizerResponse synchronizerResponse = new SynchronizerResponse(serverFilesTable());
+            ctx.writeAndFlush(synchronizerResponse);
+        }
+        if (msg instanceof DeleteRequest){
+            System.out.println("EE");
+            DeleteRequest deleteRequest = (DeleteRequest) msg;
+            Files.delete(deleteRequest.getDelPath());
+        }
+        if (msg instanceof SendFromServerRequest){
+            System.out.println("EEE");
+            FileInfo fileInfo = new FileInfo((Path) msg);
+            ctx.writeAndFlush(fileInfo);
         }
     }
 
@@ -79,5 +81,23 @@ public class HandlerInboundChannel extends ChannelInboundHandlerAdapter {
             }
         });
         return new FilesListResponse(files);
+    }
+
+    public void acceptFiles(ChannelHandlerContext ctx, FileInfo fileInfo) throws IOException {
+        Path path = Paths.get("./Server/Server Storage/" + fileInfo.getFilename());
+
+        if (!(fileInfo.getType() == FileInfo.FileType.DIRECTORY)){
+            if (!Files.exists(path)){
+                Files.createFile(path);
+                File file = new File(path.toString());
+                FileOutputStream fo = new FileOutputStream(file);
+                fo.write(fileInfo.getFileContent());
+                fo.close();
+                System.out.println("файл принят");
+                ctx.writeAndFlush(serverFilesTable());
+            }
+        }else{
+            System.out.println("Передача папок пока не реализована");
+        }
     }
 }

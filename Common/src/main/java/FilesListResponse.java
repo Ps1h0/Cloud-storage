@@ -3,10 +3,10 @@ import java.util.List;
 //Класс ответ на запрос списка файлов. Хранит в себе список с информацией о файлах
 public class FilesListResponse extends AbstractMessage{
 
+    private List<FileInfo> files;
+
     public FilesListResponse() {
     }
-
-    private List<FileInfo> files;
 
     public FilesListResponse(List<FileInfo> files) {
         this.files = files;

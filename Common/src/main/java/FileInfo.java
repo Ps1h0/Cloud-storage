@@ -3,6 +3,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Objects;
 
 //Класс с информацией о файле
 public class FileInfo extends AbstractMessage {
@@ -80,5 +82,20 @@ public class FileInfo extends AbstractMessage {
         } catch (IOException e) {
             throw new RuntimeException("Некорректный файл");
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FileInfo)) return false;
+        FileInfo fileInfo = (FileInfo) o;
+        return size == fileInfo.size && Objects.equals(filename, fileInfo.filename) && type == fileInfo.type && Arrays.equals(fileContent, fileInfo.fileContent);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(filename, type, size);
+        result = 31 * result + Arrays.hashCode(fileContent);
+        return result;
     }
 }
