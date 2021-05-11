@@ -12,35 +12,42 @@ import java.util.List;
 //Серверный обработчик входящих сообщений
 public class ServerHandler extends ChannelInboundHandlerAdapter {
 
+    private final String DIR = "./Server/Server storage";
+
     //При подключении отправить клиенту список файлов на серверном хранилище для вывода
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws IOException {
-        ctx.writeAndFlush(serverFilesTable());
-        System.out.println("Клиент подключился");
+        ctx.writeAndFlush(serverFilesTable(DIR));
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) {
+        ctx.close();
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        System.out.println("Серверный IN " + msg);
-
         if (msg instanceof FileInfo){
             FileInfo fileInfo = (FileInfo) msg;
-            acceptFiles(ctx, fileInfo);
+            acceptFiles(ctx, fileInfo, DIR);
         }
+
         if (msg instanceof SynchronizerRequest){
             SynchronizerRequest synchronizerRequest = (SynchronizerRequest) msg;
             for (int i = 0; i < synchronizerRequest.getFiles().size(); i++){
-                acceptFiles(ctx, synchronizerRequest.getFiles().get(i));
+                acceptFiles(ctx, synchronizerRequest.getFiles().get(i), DIR);
             }
-            SynchronizerResponse synchronizerResponse = new SynchronizerResponse(serverFilesTable());
+            SynchronizerResponse synchronizerResponse = new SynchronizerResponse(serverFilesTable(DIR));
             ctx.writeAndFlush(synchronizerResponse);
         }
+
         if (msg instanceof DeleteRequest){
             DeleteRequest deleteRequest = (DeleteRequest) msg;
             Path path = Path.of("./Server/Server storage/" + deleteRequest.getDelPath());
             Files.delete(path);
-            ctx.writeAndFlush(serverFilesTable());
+            ctx.writeAndFlush(serverFilesTable(DIR));
         }
+
         if (msg instanceof SendFromServerRequest){
             SendFromServerRequest sendFromServerRequest = (SendFromServerRequest) msg;
             Path path = Path.of("./Server/Server storage/" + sendFromServerRequest.getPath());
@@ -56,11 +63,11 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
     }
 
     //Формирует список файлов, хранящихся на сервере
-    public FilesListResponse serverFilesTable() throws IOException {
-        File dir = new File("./Server/Server storage");
+    public FilesListResponse serverFilesTable(String dir) throws IOException {
+        File file = new File(dir);
         List<FileInfo> files = new ArrayList<>();
 
-        Files.walkFileTree(dir.toPath(), new FileVisitor<>() {
+        Files.walkFileTree(file.toPath(), new FileVisitor<>() {
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
                 return FileVisitResult.CONTINUE;
@@ -85,21 +92,27 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         return new FilesListResponse(files);
     }
 
-    public void acceptFiles(ChannelHandlerContext ctx, FileInfo fileInfo) throws IOException {
-        Path path = Paths.get("./Server/Server Storage/" + fileInfo.getFilename());
+    //Принимает файлы с клиента
+    public void acceptFiles(ChannelHandlerContext ctx, FileInfo fileInfo, String dir) throws IOException {
+        Path path = Paths.get(dir).resolve(fileInfo.getFilename());
 
-        if (!(fileInfo.getType() == FileInfo.FileType.DIRECTORY)){
-            if (!Files.exists(path)){
+        if (fileInfo.getType() == FileInfo.FileType.FILE){
+            if (Files.exists(path)){
+                if (!fileInfo.equals(new FileInfo(path))) {
+                    File file = new File(path.toString());
+                    FileOutputStream fo = new FileOutputStream(file);
+                    fo.write(fileInfo.getFileContent());
+                    fo.close();
+                    ctx.writeAndFlush(serverFilesTable(DIR));
+                }
+            }else{
                 Files.createFile(path);
                 File file = new File(path.toString());
                 FileOutputStream fo = new FileOutputStream(file);
                 fo.write(fileInfo.getFileContent());
                 fo.close();
-                System.out.println("файл принят");
-                ctx.writeAndFlush(serverFilesTable());
+                ctx.writeAndFlush(serverFilesTable(DIR));
             }
-        }else{
-            System.out.println("Передача папок пока не реализована");
         }
     }
 }
