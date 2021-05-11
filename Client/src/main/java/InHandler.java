@@ -19,24 +19,13 @@ public class InHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        System.out.println("Клиентский IN " + msg);
         if (msg instanceof FilesListResponse){
             FilesListResponse filesListResponse = (FilesListResponse) msg;
             controller.fillServerTable(filesListResponse);
         }
         if (msg instanceof FileInfo){
             FileInfo fileInfo = (FileInfo) msg;
-            Path path = Paths.get("./Client/Client Storage/" + fileInfo.getFilename());
-            if (fileInfo.getType() == FileInfo.FileType.DIRECTORY){
-                System.out.println("Передача папок пока не реализована");
-            }else{
-                Files.createFile(path);
-                File file = new File(path.toString());
-                FileOutputStream fo = new FileOutputStream(file);
-                fo.write(fileInfo.getFileContent());
-                fo.close();
-                controller.updateTable(Path.of("./Client/Client Storage/"));
-            }
+            acceptFiles(fileInfo);
         }
         if (msg instanceof SynchronizerResponse){
             SynchronizerResponse synchronizerResponse = (SynchronizerResponse) msg;
@@ -46,20 +35,27 @@ public class InHandler extends ChannelInboundHandlerAdapter {
             controller.fillClientTable(synchronizerResponse.getFiles());
         }
     }
+
     private void acceptFiles(FileInfo fileInfo) throws IOException {
         Path path = Paths.get("./Client/Client Storage/" + fileInfo.getFilename());
 
-        if (!(fileInfo.getType() == FileInfo.FileType.DIRECTORY)){
-            if (!Files.exists(path)){
+        if (fileInfo.getType() == FileInfo.FileType.FILE){
+            if (Files.exists(path)){
+                if (!fileInfo.equals(new FileInfo(path))){
+                    File file = new File(path.toString());
+                    FileOutputStream fo = new FileOutputStream(file);
+                    fo.write(fileInfo.getFileContent());
+                    fo.close();
+                    controller.updateTable(Path.of("./Client/Client Storage/"));
+                }
+            }else{
                 Files.createFile(path);
                 File file = new File(path.toString());
                 FileOutputStream fo = new FileOutputStream(file);
                 fo.write(fileInfo.getFileContent());
                 fo.close();
-                System.out.println("файл принят");
+                controller.updateTable(Path.of("./Client/Client Storage/"));
             }
-        }else{
-            System.out.println("Передача папок пока не реализована");
         }
     }
 }

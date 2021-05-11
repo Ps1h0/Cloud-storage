@@ -118,6 +118,7 @@ public class Controller implements Initializable {
         filesTable.getItems().clear();
         filesTable.getItems().addAll(filesListResponse.getFiles());
         filesTable.sort();
+        updateTable(DEFAULT_PATH_TO_STORAGE);
     }
 
     //Синхронизация файлов клиента и сервера
@@ -163,7 +164,13 @@ public class Controller implements Initializable {
     }
 
     //Отправить файл на сервер
-    public void sendToServer() {
+    public void sendToServer() throws IOException {
+        if (filesTable.getSelectionModel().getSelectedItem().getType() == FileInfo.FileType.DIRECTORY){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Передача директорий будет доступна в следующих версиях :)", ButtonType.OK);
+            alert.setHeaderText(null);
+            alert.showAndWait();
+            return;
+        }
         if(filesTable.getSelectionModel().getSelectedItem() == null){
             Alert alert = new Alert(Alert.AlertType.ERROR, "Файл не выбран", ButtonType.OK);
             alert.showAndWait();
@@ -181,7 +188,6 @@ public class Controller implements Initializable {
         return pathField.getText();
     }
 
-    //TODO реализовать передачу с сервера на клиент
     public void getFileFromServer() {
         if (serverTable.getSelectionModel().getSelectedItem() == null){
             Alert alert = new Alert(Alert.AlertType.ERROR, "Файл не выбран", ButtonType.OK);
@@ -192,8 +198,13 @@ public class Controller implements Initializable {
         }
     }
 
-    //TODO реализовать удаление файла с сервера
     public void deleteFileFromServer() {
+        if (serverTable.getSelectionModel().getSelectedItem().getType() == FileInfo.FileType.DIRECTORY){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Передача директорий будет доступна в следующих версиях :)", ButtonType.OK);
+            alert.setHeaderText(null);
+            alert.showAndWait();
+            return;
+        }
         if(serverTable.getSelectionModel().getSelectedItem() == null){
             Alert alert = new Alert(Alert.AlertType.ERROR, "Файл не выбран", ButtonType.OK);
             alert.showAndWait();
