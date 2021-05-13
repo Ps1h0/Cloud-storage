@@ -23,7 +23,6 @@ public class Network {
     private static final int PORT = 8189;
     private SocketChannel channel;
 
-
     public Network(Controller controller){
         new Thread(() ->{
             EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -64,7 +63,6 @@ public class Network {
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
                     files.add(new FileInfo(dir));
-                    //channel.writeAndFlush(new FileInfo(dir));
                     return FileVisitResult.CONTINUE;
                 }
 

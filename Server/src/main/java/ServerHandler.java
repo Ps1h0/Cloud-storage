@@ -12,7 +12,7 @@ import java.util.List;
 //Серверный обработчик входящих сообщений
 public class ServerHandler extends ChannelInboundHandlerAdapter {
 
-    private final String DIR = "./Server/Server storage";
+    private final String DIR = "./Server/Server storage/";
 
     //При подключении отправить клиенту список файлов на серверном хранилище для вывода
     @Override
@@ -43,14 +43,14 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 
         if (msg instanceof DeleteRequest){
             DeleteRequest deleteRequest = (DeleteRequest) msg;
-            Path path = Path.of("./Server/Server storage/" + deleteRequest.getDelPath());
+            Path path = Path.of(DIR + deleteRequest.getDelPath());
             Files.delete(path);
             ctx.writeAndFlush(serverFilesTable(DIR));
         }
 
         if (msg instanceof SendFromServerRequest){
             SendFromServerRequest sendFromServerRequest = (SendFromServerRequest) msg;
-            Path path = Path.of("./Server/Server storage/" + sendFromServerRequest.getPath());
+            Path path = Path.of(DIR + sendFromServerRequest.getPath());
             FileInfo fileInfo = new FileInfo(path);
             ctx.writeAndFlush(fileInfo);
         }

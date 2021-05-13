@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class Controller implements Initializable {
 
-    private final Path DEFAULT_PATH_TO_STORAGE = Paths.get("./Client/Client Storage");
+    public final Path DEFAULT_PATH_TO_STORAGE = Paths.get("./Client/Client Storage/");
     public TableView<FileInfo> filesTable;
     public TableView<FileInfo> serverTable;
     public ComboBox<String> disksBox;
@@ -63,12 +63,12 @@ public class Controller implements Initializable {
         fileTypeColumn.setPrefWidth(30);
 
         //Создание и заполнение колонки "имя" в таблице
-        TableColumn<FileInfo, String> fileNameColumn = new TableColumn<>("Имя");
+        TableColumn<FileInfo, String> fileNameColumn = new TableColumn<>("Name");
         fileNameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getFilename()));
         fileNameColumn.setPrefWidth(180);
 
         //Создание и заполнение колонки "размер" в таблице
-        TableColumn<FileInfo, Long> fileSizeColumn = new TableColumn<>("Размер");
+        TableColumn<FileInfo, Long> fileSizeColumn = new TableColumn<>("Size");
         fileSizeColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getSize()));
         fileSizeColumn.setPrefWidth(100);
 
@@ -85,7 +85,7 @@ public class Controller implements Initializable {
                     setText(null);
                     setStyle("");
                 } else {
-                    String text = String.format("%,d Б", item);
+                    String text = String.format("%,d B", item);
                     if (item == -1L) text = "[DIR]";
                     setText(text);
                 }
@@ -135,7 +135,7 @@ public class Controller implements Initializable {
     //Операция удаления файла/директории из папки на клиенте
     public void deleteFileFromClient() {
         if(filesTable.getSelectionModel().getSelectedItem() == null){
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Файл не выбран", ButtonType.OK);
+            Alert alert = new Alert(Alert.AlertType.ERROR, "No file selected", ButtonType.OK);
             alert.showAndWait();
         }else{
             Path delPath = Paths.get(getCurrentPath(), getSelectedFilename(filesTable));
@@ -146,6 +146,22 @@ public class Controller implements Initializable {
                 Alert alert = new Alert(Alert.AlertType.ERROR, "Не удалось удалить выбранный файл", ButtonType.OK);
                 alert.showAndWait();
             }
+        }
+    }
+
+    public void deleteFileFromServer() {
+        if(serverTable.getSelectionModel().getSelectedItem() == null){
+            Alert alert = new Alert(Alert.AlertType.ERROR, "No file selected", ButtonType.OK);
+            alert.showAndWait();
+        }else{
+            if (serverTable.getSelectionModel().getSelectedItem().getType() == FileInfo.FileType.DIRECTORY){
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Directory transfer will be available in the next versions :)", ButtonType.OK);
+                alert.setHeaderText(null);
+                alert.showAndWait();
+                return;
+            }
+            Path delPath = Paths.get(getSelectedFilename(serverTable));
+            network.deleteFromServer(delPath);
         }
     }
 
@@ -165,16 +181,16 @@ public class Controller implements Initializable {
 
     //Отправить файл на сервер
     public void sendToServer() throws IOException {
-        if (filesTable.getSelectionModel().getSelectedItem().getType() == FileInfo.FileType.DIRECTORY){
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Передача директорий будет доступна в следующих версиях :)", ButtonType.OK);
-            alert.setHeaderText(null);
-            alert.showAndWait();
-            return;
-        }
         if(filesTable.getSelectionModel().getSelectedItem() == null){
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Файл не выбран", ButtonType.OK);
+            Alert alert = new Alert(Alert.AlertType.ERROR, "No file selected", ButtonType.OK);
             alert.showAndWait();
         }else{
+            if (filesTable.getSelectionModel().getSelectedItem().getType() == FileInfo.FileType.DIRECTORY){
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Directory transfer will be available in the next versions :)", ButtonType.OK);
+                alert.setHeaderText(null);
+                alert.showAndWait();
+                return;
+            }
             Path path = Paths.get(getCurrentPath() + "/" + getSelectedFilename(filesTable));
             network.sendFile(path);
         }
@@ -190,27 +206,11 @@ public class Controller implements Initializable {
 
     public void getFileFromServer() {
         if (serverTable.getSelectionModel().getSelectedItem() == null){
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Файл не выбран", ButtonType.OK);
+            Alert alert = new Alert(Alert.AlertType.ERROR, "No file selected", ButtonType.OK);
             alert.showAndWait();
         }else{
             Path sendPath = Paths.get(getSelectedFilename(serverTable));
             network.getFromServer(sendPath);
-        }
-    }
-
-    public void deleteFileFromServer() {
-        if (serverTable.getSelectionModel().getSelectedItem().getType() == FileInfo.FileType.DIRECTORY){
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Передача директорий будет доступна в следующих версиях :)", ButtonType.OK);
-            alert.setHeaderText(null);
-            alert.showAndWait();
-            return;
-        }
-        if(serverTable.getSelectionModel().getSelectedItem() == null){
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Файл не выбран", ButtonType.OK);
-            alert.showAndWait();
-        }else{
-            Path delPath = Paths.get(getSelectedFilename(serverTable));
-            network.deleteFromServer(delPath);
         }
     }
 }
