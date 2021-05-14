@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 public class Controller implements Initializable {
 
+    //Работает для запуска jar архива, для запуска проекта из среды использовать путь "./Client storage/"
     public final Path DEFAULT_PATH_TO_STORAGE = Paths.get("../Client storage/");
     public TableView<FileInfo> filesTable;
     public TableView<FileInfo> serverTable;

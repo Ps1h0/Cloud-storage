@@ -15,6 +15,7 @@ import java.util.List;
 //Серверный обработчик входящих сообщений
 public class ServerHandler extends ChannelInboundHandlerAdapter {
 
+    //Работает для запуска jar архива, для запуска проекта из среды использовать путь "./Server storage/"
     private final String DIR = "../Server storage/";
 
     //При подключении отправить клиенту список файлов на серверном хранилище для вывода
