@@ -1,4 +1,4 @@
-# Cloud-storage1
+# Cloud-storage
 
 В модулях Client и Server создать директории Client storage и Server storage соответственно. Поместить в эти директории файлы размером до 1Гб.
 
