@@ -1,3 +1,6 @@
+package com.example.server;
+
+import com.example.common.*;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
@@ -12,7 +15,7 @@ import java.util.List;
 //Серверный обработчик входящих сообщений
 public class ServerHandler extends ChannelInboundHandlerAdapter {
 
-    private final String DIR = "./Server storage/";
+    private final String DIR = "../Server storage/";
 
     //При подключении отправить клиенту список файлов на серверном хранилище для вывода
     @Override
@@ -116,3 +119,4 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         }
     }
 }
+

@@ -1,5 +1,10 @@
+package com.example.client;
+
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import com.example.common.FileInfo;
+import com.example.common.FilesListResponse;
+import com.example.common.SynchronizerResponse;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -57,3 +62,4 @@ public class InHandler extends ChannelInboundHandlerAdapter {
         }
     }
 }
+

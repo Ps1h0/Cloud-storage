@@ -5,7 +5,7 @@
 
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
-<VBox prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
+<VBox prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.client.Controller">
    <MenuBar VBox.vgrow="NEVER">
       <Menu mnemonicParsing="false" text="Program">
          <MenuItem mnemonicParsing="false" onAction="#quit" text="Exit" />

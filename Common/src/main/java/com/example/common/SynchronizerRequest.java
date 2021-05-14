@@ -1,3 +1,5 @@
+package com.example.common;
+
 import java.util.List;
 
 //Запрос серверу на синхронизацию

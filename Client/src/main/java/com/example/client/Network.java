@@ -1,3 +1,6 @@
+package com.example.client;
+
+import com.example.common.*;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -104,3 +107,4 @@ public class Network {
         channel.close();
     }
 }
+

@@ -1,3 +1,5 @@
+package com.example.common;
+
 import java.util.List;
 
 //Класс ответ на запрос списка файлов. Хранит в себе список с информацией о файлах

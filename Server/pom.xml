@@ -40,7 +40,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>Server</mainClass>
+                                    <mainClass>com.example.server.Server</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>

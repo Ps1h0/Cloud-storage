@@ -1,9 +1,14 @@
+package com.example.client;
+
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import com.example.common.FileInfo;
+import com.example.common.FilesListResponse;
+import com.example.common.SynchronizerRequest;
 
 import java.io.IOException;
 import java.net.URL;
@@ -18,7 +23,7 @@ import java.util.stream.Collectors;
 
 public class Controller implements Initializable {
 
-    public final Path DEFAULT_PATH_TO_STORAGE = Paths.get("./Client storage/");
+    public final Path DEFAULT_PATH_TO_STORAGE = Paths.get("../Client storage/");
     public TableView<FileInfo> filesTable;
     public TableView<FileInfo> serverTable;
     public ComboBox<String> disksBox;
@@ -214,3 +219,4 @@ public class Controller implements Initializable {
         }
     }
 }
+
