@@ -1,3 +1,6 @@
+package com.example.client;
+
+import com.example.common.*;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -22,7 +25,6 @@ public class Network {
     private static final String ADDRESS = "localhost";
     private static final int PORT = 8189;
     private SocketChannel channel;
-
 
     public Network(Controller controller){
         new Thread(() ->{
@@ -64,7 +66,6 @@ public class Network {
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
                     files.add(new FileInfo(dir));
-                    //channel.writeAndFlush(new FileInfo(dir));
                     return FileVisitResult.CONTINUE;
                 }
 
@@ -106,3 +107,4 @@ public class Network {
         channel.close();
     }
 }
+

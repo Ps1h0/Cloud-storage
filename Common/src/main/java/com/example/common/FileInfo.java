@@ -1,4 +1,4 @@
-import com.fasterxml.jackson.annotation.JsonProperty;
+package com.example.common;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,16 +23,9 @@ public class FileInfo extends AbstractMessage {
         }
     }
 
-    @JsonProperty("filename")
     private String filename;
-
-    @JsonProperty("type")
     private FileType type;
-
-    @JsonProperty("size")
     private long size;
-
-    @JsonProperty("fileContent")
     private byte[] fileContent;
 
 

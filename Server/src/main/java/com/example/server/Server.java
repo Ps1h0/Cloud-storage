@@ -1,3 +1,5 @@
+package com.example.server;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -29,9 +31,9 @@ public class Server {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) {
                             socketChannel.pipeline().addLast(
-                                new ObjectDecoder(1024 * 1024 * 1024, ClassResolvers.cacheDisabled(null)),
-                                new ObjectEncoder(),
-                                new ServerHandler()
+                                    new ObjectDecoder(1024 * 1024 * 1024, ClassResolvers.cacheDisabled(null)),
+                                    new ObjectEncoder(),
+                                    new ServerHandler()
                             );
                         }
                     });
@@ -45,3 +47,4 @@ public class Server {
         }
     }
 }
+

@@ -1,4 +1,4 @@
-import java.util.List;
+package com.example.common;
 
 //Ответ сервера на запрос синхронизации
 public class SynchronizerResponse extends AbstractMessage{

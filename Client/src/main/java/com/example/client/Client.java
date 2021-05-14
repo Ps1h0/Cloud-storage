@@ -1,3 +1,5 @@
+package com.example.client;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -13,7 +15,7 @@ public class Client extends Application {
     @Override
     public void start(Stage stage) throws Exception {
 
-        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("./client.fxml")){
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("client.fxml")){
             Parent root = loader.load(inputStream);
             stage.setTitle("Cloud storage");
             stage.setResizable(false);
@@ -26,3 +28,4 @@ public class Client extends Application {
         launch(args);
     }
 }
+

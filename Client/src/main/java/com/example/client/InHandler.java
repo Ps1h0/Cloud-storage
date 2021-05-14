@@ -1,12 +1,16 @@
+package com.example.client;
+
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import com.example.common.FileInfo;
+import com.example.common.FilesListResponse;
+import com.example.common.SynchronizerResponse;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 //Обработчик входящих сообщений от сервера
 public class InHandler extends ChannelInboundHandlerAdapter {
@@ -37,8 +41,7 @@ public class InHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void acceptFiles(FileInfo fileInfo) throws IOException {
-        Path path = Paths.get("./Client/Client Storage/" + fileInfo.getFilename());
-
+        Path path = controller.DEFAULT_PATH_TO_STORAGE.resolve(fileInfo.getFilename());
         if (fileInfo.getType() == FileInfo.FileType.FILE){
             if (Files.exists(path)){
                 if (!fileInfo.equals(new FileInfo(path))){
@@ -46,7 +49,7 @@ public class InHandler extends ChannelInboundHandlerAdapter {
                     FileOutputStream fo = new FileOutputStream(file);
                     fo.write(fileInfo.getFileContent());
                     fo.close();
-                    controller.updateTable(Path.of("./Client/Client Storage/"));
+                    controller.updateTable(controller.DEFAULT_PATH_TO_STORAGE);
                 }
             }else{
                 Files.createFile(path);
@@ -54,8 +57,9 @@ public class InHandler extends ChannelInboundHandlerAdapter {
                 FileOutputStream fo = new FileOutputStream(file);
                 fo.write(fileInfo.getFileContent());
                 fo.close();
-                controller.updateTable(Path.of("./Client/Client Storage/"));
+                controller.updateTable(controller.DEFAULT_PATH_TO_STORAGE);
             }
         }
     }
 }
+

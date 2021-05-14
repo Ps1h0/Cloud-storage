@@ -1,3 +1,5 @@
+package com.example.common;
+
 public class SendFromServerRequest extends AbstractMessage{
 
     public String path;

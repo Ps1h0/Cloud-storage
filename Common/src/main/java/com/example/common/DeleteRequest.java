@@ -1,3 +1,4 @@
+package com.example.common;
 
 public class DeleteRequest extends AbstractMessage{
 
