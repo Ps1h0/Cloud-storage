@@ -12,7 +12,7 @@ import java.util.List;
 //Серверный обработчик входящих сообщений
 public class ServerHandler extends ChannelInboundHandlerAdapter {
 
-    private final String DIR = "./Server/Server storage/";
+    private final String DIR = "./Server storage/";
 
     //При подключении отправить клиенту список файлов на серверном хранилище для вывода
     @Override
