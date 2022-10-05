@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class Controller implements Initializable {
 
     @Getter
-    private final Path defaultPathToStorage = Path.of(ConfigHandler.handleConfig().getProperty("CLIENT_DIRECTORY"));
+    private final Path defaultPathToStorage = Path.of(ConfigHandler.handleConfig(ConfigHandler.Name.Client).getProperty("CLIENT_DIRECTORY"));
 
     public TableView<FileInfo> filesTable;
     public TableView<FileInfo> serverTable;
@@ -36,11 +36,9 @@ public class Controller implements Initializable {
 
     private Network network;
 
-    //Инициализация графического интерфейса
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        //Получение соединения
         network = new Network(this);
 
         createTable(filesTable);
@@ -68,6 +66,7 @@ public class Controller implements Initializable {
 
     /**
      * Метод для создания таблиц в окне
+     *
      * @param tableView отображения таблицы
      */
     private void createTable(TableView<FileInfo> tableView) {
@@ -109,6 +108,7 @@ public class Controller implements Initializable {
 
     /**
      * Обновление списка файлов и директорий на клиенте после каких-либо манипуляций с файлами
+     *
      * @param path путь к директории
      */
     public void updateTable(Path path) {
@@ -125,9 +125,10 @@ public class Controller implements Initializable {
 
     /**
      * Заполнение таблицы данными о файлах
+     *
      * @param files ответ со списком файлов
      */
-    public void fillTable(FilesListResponse files){
+    public void fillTable(FilesListResponse files) {
         filesTable.getItems().clear();
         filesTable.getItems().addAll(files.getFiles());
         filesTable.sort();

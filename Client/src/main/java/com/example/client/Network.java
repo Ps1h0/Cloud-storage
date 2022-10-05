@@ -1,7 +1,7 @@
 package com.example.client;
 
 import com.example.common.ConfigHandler;
-import com.example.client.handlers.InHandler;
+import com.example.client.handlers.ClientHandler;
 import com.example.common.*;
 import com.example.common.requests.DeleteRequest;
 import com.example.common.requests.SendFromServerRequest;
@@ -29,8 +29,8 @@ import java.util.List;
 
 public class Network {
 
-    private static final String ADDRESS = ConfigHandler.handleConfig().getProperty("ADDRESS");
-    private static final int PORT = Integer.parseInt(ConfigHandler.handleConfig().getProperty("PORT"));
+    private static final String ADDRESS = ConfigHandler.handleConfig(ConfigHandler.Name.Client).getProperty("ADDRESS");
+    private static final int PORT = Integer.parseInt(ConfigHandler.handleConfig(ConfigHandler.Name.Client).getProperty("PORT"));
     private SocketChannel channel;
 
     public Network(Controller controller) {
@@ -47,7 +47,7 @@ public class Network {
                                 socketChannel.pipeline().addLast(
                                         new ObjectDecoder(1024 * 1024 * 1024, ClassResolvers.cacheDisabled(null)),
                                         new ObjectEncoder(),
-                                        new InHandler(controller)
+                                        new ClientHandler(controller)
                                 );
                             }
                         });

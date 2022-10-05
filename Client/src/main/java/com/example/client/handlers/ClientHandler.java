@@ -16,12 +16,12 @@ import java.nio.file.Path;
 /**
  * Обработчик входящих сообщений от сервера
  */
-public class InHandler extends ChannelInboundHandlerAdapter {
+public class ClientHandler extends ChannelInboundHandlerAdapter {
 
     private final Controller controller;
     private final Path defaultPath;
 
-    public InHandler(Controller controller) {
+    public ClientHandler(Controller controller) {
         this.controller = controller;
         defaultPath = controller.getDefaultPathToStorage();
     }
