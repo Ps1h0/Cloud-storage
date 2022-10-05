@@ -1,8 +1,15 @@
 package com.example.server;
 
-import com.example.common.*;
+import com.example.common.ConfigHandler;
+import com.example.common.FileInfo;
+import com.example.common.requests.DeleteRequest;
+import com.example.common.requests.SendFromServerRequest;
+import com.example.common.requests.SynchronizerRequest;
+import com.example.common.responses.FilesListResponse;
+import com.example.common.responses.SynchronizerResponse;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import lombok.Getter;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,16 +19,17 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
-//Серверный обработчик входящих сообщений
+/**
+ * Серверный обработчик входящих сообщений
+ */
+@Getter
 public class ServerHandler extends ChannelInboundHandlerAdapter {
 
-    //Работает для запуска jar архива, для запуска проекта из среды использовать путь "./Server storage/"
-    private final String DIR = "../Server storage/";
+    private final String SERVER_DIRECTORY = ConfigHandler.handleConfig().getProperty("SERVER_DIRECTORY");
 
-    //При подключении отправить клиенту список файлов на серверном хранилище для вывода
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws IOException {
-        ctx.writeAndFlush(serverFilesTable(DIR));
+    public void channelActive(ChannelHandlerContext ctx) {
+        ctx.writeAndFlush(createServerFilesTable(SERVER_DIRECTORY));
     }
 
     @Override
@@ -30,31 +38,35 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (msg instanceof FileInfo){
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
+        if (msg instanceof FileInfo) {
             FileInfo fileInfo = (FileInfo) msg;
-            acceptFiles(ctx, fileInfo, DIR);
+            acceptFiles(ctx, fileInfo, SERVER_DIRECTORY);
         }
 
-        if (msg instanceof SynchronizerRequest){
+        if (msg instanceof SynchronizerRequest) {
             SynchronizerRequest synchronizerRequest = (SynchronizerRequest) msg;
-            for (int i = 0; i < synchronizerRequest.getFiles().size(); i++){
-                acceptFiles(ctx, synchronizerRequest.getFiles().get(i), DIR);
+            for (int i = 0; i < synchronizerRequest.getFiles().size(); i++) {
+                acceptFiles(ctx, synchronizerRequest.getFiles().get(i), SERVER_DIRECTORY);
             }
-            SynchronizerResponse synchronizerResponse = new SynchronizerResponse(serverFilesTable(DIR));
+            SynchronizerResponse synchronizerResponse = new SynchronizerResponse(createServerFilesTable(SERVER_DIRECTORY));
             ctx.writeAndFlush(synchronizerResponse);
         }
 
-        if (msg instanceof DeleteRequest){
+        if (msg instanceof DeleteRequest) {
             DeleteRequest deleteRequest = (DeleteRequest) msg;
-            Path path = Path.of(DIR + deleteRequest.getDelPath());
-            Files.delete(path);
-            ctx.writeAndFlush(serverFilesTable(DIR));
+            Path path = Path.of(SERVER_DIRECTORY + deleteRequest.getDelPath());
+            try {
+                Files.delete(path);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            ctx.writeAndFlush(createServerFilesTable(SERVER_DIRECTORY));
         }
 
-        if (msg instanceof SendFromServerRequest){
+        if (msg instanceof SendFromServerRequest) {
             SendFromServerRequest sendFromServerRequest = (SendFromServerRequest) msg;
-            Path path = Path.of(DIR + sendFromServerRequest.getPath());
+            Path path = Path.of(SERVER_DIRECTORY + sendFromServerRequest.getPath());
             FileInfo fileInfo = new FileInfo(path);
             ctx.writeAndFlush(fileInfo);
         }
@@ -66,57 +78,78 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         ctx.close();
     }
 
-    //Формирует список файлов, хранящихся на сервере
-    public FilesListResponse serverFilesTable(String dir) throws IOException {
-        File file = new File(dir);
+    /**
+     * Метод для формирования списка файлов, хранящихся на сервере
+     *
+     * @param dir директория
+     * @return список файлов
+     */
+    private FilesListResponse createServerFilesTable(String dir) {
         List<FileInfo> files = new ArrayList<>();
 
-        Files.walkFileTree(file.toPath(), new FileVisitor<>() {
-            @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-                return FileVisitResult.CONTINUE;
-            }
+        try {
+            Files.walkFileTree(Path.of(dir), new FileVisitor<>() {
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+                    return FileVisitResult.CONTINUE;
+                }
 
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                files.add(new FileInfo(file));
-                return FileVisitResult.CONTINUE;
-            }
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                    files.add(new FileInfo(file));
+                    return FileVisitResult.CONTINUE;
+                }
 
-            @Override
-            public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                return FileVisitResult.CONTINUE;
-            }
+                @Override
+                public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                    return FileVisitResult.CONTINUE;
+                }
 
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
-                return FileVisitResult.CONTINUE;
-            }
-        });
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return new FilesListResponse(files);
     }
 
-    //Принимает файлы с клиента
-    public void acceptFiles(ChannelHandlerContext ctx, FileInfo fileInfo, String dir) throws IOException {
+    /**
+     * Принимает файлы с клиента
+     *
+     * @param ctx      контекст
+     * @param fileInfo информация о файлах
+     * @param dir      директория
+     */
+    private void acceptFiles(ChannelHandlerContext ctx, FileInfo fileInfo, String dir) {
         Path path = Paths.get(dir).resolve(fileInfo.getFilename());
-
-        if (fileInfo.getType() == FileInfo.FileType.FILE){
-            if (Files.exists(path)){
+        File file;
+        if (fileInfo.getType() == FileInfo.FileType.FILE) {
+            if (Files.exists(path)) {
                 if (!fileInfo.equals(new FileInfo(path))) {
-                    File file = new File(path.toString());
-                    FileOutputStream fo = new FileOutputStream(file);
-                    fo.write(fileInfo.getFileContent());
-                    fo.close();
-                    ctx.writeAndFlush(serverFilesTable(DIR));
+                    file = new File(path.toString());
+                    write(fileInfo, file);
+                    ctx.writeAndFlush(createServerFilesTable(SERVER_DIRECTORY));
                 }
-            }else{
-                Files.createFile(path);
-                File file = new File(path.toString());
-                FileOutputStream fo = new FileOutputStream(file);
-                fo.write(fileInfo.getFileContent());
-                fo.close();
-                ctx.writeAndFlush(serverFilesTable(DIR));
+            } else {
+                try {
+                    file = new File(Files.createFile(path).toString());
+                    write(fileInfo, file);
+                    ctx.writeAndFlush(createServerFilesTable(SERVER_DIRECTORY));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
+        }
+    }
+
+    private void write(FileInfo fileInfo, File file) {
+        try (FileOutputStream fo = new FileOutputStream(file)) {
+            fo.write(fileInfo.getFileContent());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

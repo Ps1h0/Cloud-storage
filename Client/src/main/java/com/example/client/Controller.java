@@ -1,5 +1,6 @@
 package com.example.client;
 
+import com.example.common.ConfigHandler;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -7,8 +8,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import com.example.common.FileInfo;
-import com.example.common.FilesListResponse;
-import com.example.common.SynchronizerRequest;
+import com.example.common.responses.FilesListResponse;
+import com.example.common.requests.SynchronizerRequest;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.net.URL;
@@ -23,13 +25,16 @@ import java.util.stream.Collectors;
 
 public class Controller implements Initializable {
 
-    //Работает для запуска jar архива, для запуска проекта из среды использовать путь "./Client storage/"
-    public final Path DEFAULT_PATH_TO_STORAGE = Paths.get("../Client storage/");
+    @Getter
+    private final Path defaultPathToStorage = Path.of(ConfigHandler.handleConfig().getProperty("CLIENT_DIRECTORY"));
+
     public TableView<FileInfo> filesTable;
     public TableView<FileInfo> serverTable;
     public ComboBox<String> disksBox;
+    @Getter
     public TextField pathField;
-    public Network network;
+
+    private Network network;
 
     //Инициализация графического интерфейса
     @Override
@@ -43,26 +48,29 @@ public class Controller implements Initializable {
 
         //Получить названия всех логических дисков и добавить их в ComboBox
         disksBox.getItems().clear();
-        for (Path p : FileSystems.getDefault().getRootDirectories()){
+        for (Path p : FileSystems.getDefault().getRootDirectories()) {
             disksBox.getItems().add(p.toString());
         }
-        disksBox.getSelectionModel().select(String.valueOf(DEFAULT_PATH_TO_STORAGE.toAbsolutePath().getRoot()));
+        disksBox.getSelectionModel().select(String.valueOf(defaultPathToStorage.toAbsolutePath().getRoot()));
 
         //Переход на уровень вниз в древе при нажатии 2 лкм
         filesTable.setOnMouseClicked(mouseEvent -> {
-            if (mouseEvent.getClickCount() == 2){
-                Path path = Paths.get(getCurrentPath()).resolve(getSelectedFilename(filesTable));
-                if (Files.isDirectory(path)){
+            if (mouseEvent.getClickCount() == 2) {
+                Path path = Paths.get(pathField.getText()).resolve(getSelectedFilename(filesTable));
+                if (Files.isDirectory(path)) {
                     updateTable(path);
                 }
             }
         });
 
-        updateTable(DEFAULT_PATH_TO_STORAGE);
+        updateTable(defaultPathToStorage);
     }
 
-    //Создание таблиц в окне
-    private void createTable(TableView<FileInfo> tableView){
+    /**
+     * Метод для создания таблиц в окне
+     * @param tableView отображения таблицы
+     */
+    private void createTable(TableView<FileInfo> tableView) {
         //Создание и заполнение колонки "тип файла" в таблице
         TableColumn<FileInfo, String> fileTypeColumn = new TableColumn<>();
         fileTypeColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getType().getName()));
@@ -99,8 +107,11 @@ public class Controller implements Initializable {
         });
     }
 
-    //Обновление списка файлов и директорий на клиенте после каких-либо манипуляций с файлами
-    public void updateTable(Path path){
+    /**
+     * Обновление списка файлов и директорий на клиенте после каких-либо манипуляций с файлами
+     * @param path путь к директории
+     */
+    public void updateTable(Path path) {
         try {
             pathField.setText(path.normalize().toAbsolutePath().toString());
             filesTable.getItems().clear();
@@ -112,22 +123,19 @@ public class Controller implements Initializable {
         }
     }
 
-    //Заполнение таблицы данными о файлах на серверном хранилище
-    public void fillServerTable(FilesListResponse filesListResponse){
-        serverTable.getItems().clear();
-        serverTable.getItems().addAll(filesListResponse.getFiles());
-        serverTable.sort();
-    }
-
-    //Заполнение таблицы данными о файлах на клиенте
-    public void fillClientTable(FilesListResponse filesListResponse){
+    /**
+     * Заполнение таблицы данными о файлах
+     * @param files ответ со списком файлов
+     */
+    public void fillTable(FilesListResponse files){
         filesTable.getItems().clear();
-        filesTable.getItems().addAll(filesListResponse.getFiles());
+        filesTable.getItems().addAll(files.getFiles());
         filesTable.sort();
-        updateTable(DEFAULT_PATH_TO_STORAGE);
     }
 
-    //Синхронизация файлов клиента и сервера
+    /**
+     * Синхронизация файлов клиента и сервера
+     */
     public void synchronize() {
         List<FileInfo> files = new ArrayList<>(filesTable.getItems());
         network.synchronize(new SynchronizerRequest(files));
@@ -138,16 +146,18 @@ public class Controller implements Initializable {
         Platform.exit();
     }
 
-    //Операция удаления файла/директории из папки на клиенте
+    /**
+     * Операция удаления файла/директории из папки на клиенте
+     */
     public void deleteFileFromClient() {
-        if(filesTable.getSelectionModel().getSelectedItem() == null){
+        if (filesTable.getSelectionModel().getSelectedItem() == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "No file selected", ButtonType.OK);
             alert.showAndWait();
-        }else{
-            Path delPath = Paths.get(getCurrentPath(), getSelectedFilename(filesTable));
+        } else {
+            Path delPath = Paths.get(pathField.getText(), getSelectedFilename(filesTable));
             try {
                 Files.delete(delPath);
-                updateTable(Paths.get(getCurrentPath()));
+                updateTable(Paths.get(pathField.getText()));
             } catch (IOException e) {
                 Alert alert = new Alert(Alert.AlertType.ERROR, "Не удалось удалить выбранный файл", ButtonType.OK);
                 alert.showAndWait();
@@ -156,11 +166,11 @@ public class Controller implements Initializable {
     }
 
     public void deleteFileFromServer() {
-        if(serverTable.getSelectionModel().getSelectedItem() == null){
+        if (serverTable.getSelectionModel().getSelectedItem() == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "No file selected", ButtonType.OK);
             alert.showAndWait();
-        }else{
-            if (serverTable.getSelectionModel().getSelectedItem().getType() == FileInfo.FileType.DIRECTORY){
+        } else {
+            if (serverTable.getSelectionModel().getSelectedItem().getType() == FileInfo.FileType.DIRECTORY) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION, "Directory transfer will be available in the next versions :)", ButtonType.OK);
                 alert.setHeaderText(null);
                 alert.showAndWait();
@@ -173,8 +183,8 @@ public class Controller implements Initializable {
 
     //Переход на один уровень вверх в древе
     public void pathUp() {
-        Path upperPath = Paths.get(getCurrentPath()).getParent();
-        if(upperPath != null){
+        Path upperPath = Paths.get(pathField.getText()).getParent();
+        if (upperPath != null) {
             updateTable(upperPath);
         }
     }
@@ -185,36 +195,38 @@ public class Controller implements Initializable {
         updateTable(Paths.get(element.getSelectionModel().getSelectedItem()));
     }
 
-    //Отправить файл на сервер
-    public void sendToServer() throws IOException {
-        if(filesTable.getSelectionModel().getSelectedItem() == null){
+    /**
+     * Отправка файла на сервер
+     */
+    public void sendToServer() {
+        if (filesTable.getSelectionModel().getSelectedItem() == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "No file selected", ButtonType.OK);
             alert.showAndWait();
-        }else{
-            if (filesTable.getSelectionModel().getSelectedItem().getType() == FileInfo.FileType.DIRECTORY){
+        } else {
+            if (filesTable.getSelectionModel().getSelectedItem().getType() == FileInfo.FileType.DIRECTORY) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION, "Directory transfer will be available in the next versions :)", ButtonType.OK);
                 alert.setHeaderText(null);
                 alert.showAndWait();
                 return;
             }
-            Path path = Paths.get(getCurrentPath() + "/" + getSelectedFilename(filesTable));
-            network.sendFile(path);
+            Path path = Paths.get(pathField.getText() + "/" + getSelectedFilename(filesTable));
+            try {
+                network.sendFile(path);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
-    private String getSelectedFilename(TableView<FileInfo> tableView){
+    private String getSelectedFilename(TableView<FileInfo> tableView) {
         return tableView.getSelectionModel().getSelectedItem().getFilename();
     }
 
-    private String getCurrentPath(){
-        return pathField.getText();
-    }
-
     public void getFileFromServer() {
-        if (serverTable.getSelectionModel().getSelectedItem() == null){
+        if (serverTable.getSelectionModel().getSelectedItem() == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "No file selected", ButtonType.OK);
             alert.showAndWait();
-        }else{
+        } else {
             Path sendPath = Paths.get(getSelectedFilename(serverTable));
             network.getFromServer(sendPath);
         }

@@ -15,10 +15,6 @@ public class Server {
 
     private static final int PORT = 8189;
 
-    public static void main(String[] args) {
-        new Server().run();
-    }
-
     public void run(){
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();

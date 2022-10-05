@@ -1,6 +1,12 @@
 package com.example.client;
 
+import com.example.common.ConfigHandler;
+import com.example.client.handlers.InHandler;
 import com.example.common.*;
+import com.example.common.requests.DeleteRequest;
+import com.example.common.requests.SendFromServerRequest;
+import com.example.common.requests.SynchronizerRequest;
+import com.example.common.responses.FilesListResponse;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -22,14 +28,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Network {
-    private static final String ADDRESS = "localhost";
-    private static final int PORT = 8189;
+
+    private static final String ADDRESS = ConfigHandler.handleConfig().getProperty("ADDRESS");
+    private static final int PORT = Integer.parseInt(ConfigHandler.handleConfig().getProperty("PORT"));
     private SocketChannel channel;
 
-    public Network(Controller controller){
-        new Thread(() ->{
+    public Network(Controller controller) {
+        new Thread(() -> {
             EventLoopGroup workerGroup = new NioEventLoopGroup();
-            try{
+            try {
                 Bootstrap bootstrap = new Bootstrap();
                 bootstrap.group(workerGroup)
                         .channel(NioSocketChannel.class)
@@ -46,9 +53,9 @@ public class Network {
                         });
                 ChannelFuture future = bootstrap.connect(ADDRESS, PORT).sync();
                 future.channel().closeFuture().sync();
-            } catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
-            }finally {
+            } finally {
                 workerGroup.shutdownGracefully();
             }
         }).start();
@@ -59,7 +66,7 @@ public class Network {
     }
 
     public void sendFile(Path path) throws IOException {
-        if (Files.isDirectory(path)){
+        if (Files.isDirectory(path)) {
             List<FileInfo> files = new ArrayList<>();
 
             Files.walkFileTree(path, new FileVisitor<>() {
@@ -87,13 +94,13 @@ public class Network {
             });
             channel.writeAndFlush(new FilesListResponse(files));
         }
-        if (Files.isRegularFile(path)){
+        if (Files.isRegularFile(path)) {
             FileInfo fileInfo = new FileInfo(path);
             channel.writeAndFlush(fileInfo);
         }
     }
 
-    public void deleteFromServer(Path path){
+    public void deleteFromServer(Path path) {
         channel.writeAndFlush(new DeleteRequest(path.toString()));
     }
 
@@ -103,7 +110,7 @@ public class Network {
         channel.writeAndFlush(sendFromServerRequest);
     }
 
-    public void closeConnection(){
+    public void closeConnection() {
         channel.close();
     }
 }
