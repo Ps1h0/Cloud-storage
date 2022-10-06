@@ -1,4 +1,6 @@
-package com.example.common;
+package com.example.common.handlers;
+
+import lombok.AllArgsConstructor;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -6,8 +8,16 @@ import java.util.Properties;
 
 public class ConfigHandler {
 
-    public static Properties handleConfig() {
-        String configFilePath = "src/main/resources/configuration.properties";
+    @AllArgsConstructor
+    public enum Name {
+        Client ("Client"),
+        Server ("Server");
+
+        private final String title;
+    }
+
+    public static Properties handleConfig(Name name) {
+        String configFilePath = name.title + "/src/main/resources/configuration.properties";
         Properties prop = new Properties();
         try (FileInputStream propsInput = new FileInputStream(configFilePath)) {
             prop.load(propsInput);

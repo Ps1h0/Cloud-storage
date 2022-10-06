@@ -1,7 +1,7 @@
 package com.example.server;
 
-import com.example.common.ConfigHandler;
-import com.example.common.FileInfo;
+import com.example.common.handlers.ConfigHandler;
+import com.example.common.entities.FileInfo;
 import com.example.common.requests.DeleteRequest;
 import com.example.common.requests.SendFromServerRequest;
 import com.example.common.requests.SynchronizerRequest;
@@ -25,7 +25,7 @@ import java.util.List;
 @Getter
 public class ServerHandler extends ChannelInboundHandlerAdapter {
 
-    private final String SERVER_DIRECTORY = ConfigHandler.handleConfig().getProperty("SERVER_DIRECTORY");
+    private final String SERVER_DIRECTORY = ConfigHandler.handleConfig(ConfigHandler.Name.Server).getProperty("SERVER_DIRECTORY");
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {

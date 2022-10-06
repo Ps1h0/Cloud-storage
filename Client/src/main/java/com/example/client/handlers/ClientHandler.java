@@ -1,7 +1,7 @@
 package com.example.client.handlers;
 
 import com.example.client.Controller;
-import com.example.common.FileInfo;
+import com.example.common.entities.FileInfo;
 import com.example.common.responses.FilesListResponse;
 import com.example.common.responses.SynchronizerResponse;
 import io.netty.channel.ChannelHandlerContext;
@@ -16,12 +16,12 @@ import java.nio.file.Path;
 /**
  * Обработчик входящих сообщений от сервера
  */
-public class InHandler extends ChannelInboundHandlerAdapter {
+public class ClientHandler extends ChannelInboundHandlerAdapter {
 
     private final Controller controller;
     private final Path defaultPath;
 
-    public InHandler(Controller controller) {
+    public ClientHandler(Controller controller) {
         this.controller = controller;
         defaultPath = controller.getDefaultPathToStorage();
     }

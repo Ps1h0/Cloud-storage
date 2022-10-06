@@ -1,5 +1,6 @@
 package com.example.server;
 
+import com.example.common.handlers.ConfigHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -11,15 +12,20 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class Server {
 
-    private static final int PORT = 8189;
+    private static final int PORT = Integer.parseInt(ConfigHandler.handleConfig(ConfigHandler.Name.Server).getProperty("PORT"));
+    static Logger logger = Logger.getLogger(Server.class.getName());
 
-    public void run(){
+    public void run() {
+        logger.log(Level.INFO, "Запуск сервера на порту " + PORT);
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
-        try{
+        try {
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
@@ -35,7 +41,7 @@ public class Server {
                     });
             ChannelFuture future = bootstrap.bind(PORT).sync();
             future.channel().closeFuture().sync();
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             bossGroup.shutdownGracefully();
