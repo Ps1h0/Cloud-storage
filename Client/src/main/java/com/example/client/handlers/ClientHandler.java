@@ -1,7 +1,7 @@
 package com.example.client.handlers;
 
 import com.example.client.Controller;
-import com.example.common.FileInfo;
+import com.example.common.entities.FileInfo;
 import com.example.common.responses.FilesListResponse;
 import com.example.common.responses.SynchronizerResponse;
 import io.netty.channel.ChannelHandlerContext;

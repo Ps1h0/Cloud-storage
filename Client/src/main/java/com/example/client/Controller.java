@@ -7,7 +7,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import com.example.common.FileInfo;
+import com.example.common.entities.FileInfo;
 import com.example.common.responses.FilesListResponse;
 import com.example.common.requests.SynchronizerRequest;
 import lombok.Getter;

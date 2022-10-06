@@ -1,7 +1,7 @@
 package com.example.server;
 
 import com.example.common.handlers.ConfigHandler;
-import com.example.common.FileInfo;
+import com.example.common.entities.FileInfo;
 import com.example.common.requests.DeleteRequest;
 import com.example.common.requests.SendFromServerRequest;
 import com.example.common.requests.SynchronizerRequest;
