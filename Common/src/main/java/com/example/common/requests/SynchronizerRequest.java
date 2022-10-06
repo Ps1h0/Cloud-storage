@@ -1,6 +1,6 @@
 package com.example.common.requests;
 
-import com.example.common.AbstractMessage;
+import com.example.common.messages.AbstractMessage;
 import com.example.common.FileInfo;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

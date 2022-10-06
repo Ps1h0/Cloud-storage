@@ -1,6 +1,6 @@
 package com.example.server;
 
-import com.example.common.ConfigHandler;
+import com.example.common.handlers.ConfigHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;

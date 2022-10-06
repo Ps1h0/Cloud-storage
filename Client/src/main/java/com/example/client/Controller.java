@@ -1,6 +1,6 @@
 package com.example.client;
 
-import com.example.common.ConfigHandler;
+import com.example.common.handlers.ConfigHandler;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;

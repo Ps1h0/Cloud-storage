@@ -1,6 +1,6 @@
 package com.example.client;
 
-import com.example.common.ConfigHandler;
+import com.example.common.handlers.ConfigHandler;
 import com.example.client.handlers.ClientHandler;
 import com.example.common.*;
 import com.example.common.requests.DeleteRequest;

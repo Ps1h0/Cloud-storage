@@ -1,5 +1,6 @@
 package com.example.common;
 
+import com.example.common.messages.AbstractMessage;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
