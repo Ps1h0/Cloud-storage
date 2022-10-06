@@ -18,7 +18,6 @@ public class ConfigHandler {
 
     public static Properties handleConfig(Name name) {
         String configFilePath = name.title + "/src/main/resources/configuration.properties";
-        System.out.println(configFilePath);
         Properties prop = new Properties();
         try (FileInputStream propsInput = new FileInputStream(configFilePath)) {
             prop.load(propsInput);
